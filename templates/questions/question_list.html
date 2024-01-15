@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <a href="{% url 'question_create' %}"><button>+ New question</button></a>
+    {% for question in question_list %}
+        <li>{{ question.text }}</li>
+        <hr />
+        {% empty %}
+        <li>No objects yet.</li>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<br />
+<br />
+<div class="container p-5 bg-light" style="width: 65%;">
+    <div class="centerdiv d-flex justify-content-center">
+        <h1>Result</h1>
+    </div>
+    <div class="centerdiv d-flex justify-content-center mx-auto">
+        <h3> You have completed the test</h3>
+    </div>
+    <br />
+    <br />
+    <table class="table ">
+        <thead>
+            <tr>
+                <th scope="col">Quiz Name</th>
+                <th scope="col">Student Name</th>
+                <th scope="col">Score</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for quiz in quiz_result %}
+            <tr>
+                <td>{{ quiz.quiz }}</td>
+                <td>{{ quiz.examinee }}</td>
+                <td>{{ quiz.score }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br />
+    <a class="btn btn-info" href="{% url 'home' %}">Back to Home</a>
+</div>
+<script>
+    let storedTimeDict = JSON.parse(localStorage.getItem('remainingTime')) || {};
+    delete storedTimeDict["{{quiz_id}}"];
+    console.log('{{time}}')
+    localStorage.setItem('remainingTime', JSON.stringify(storedTimeDict));
+</script>
+{% endblock %}

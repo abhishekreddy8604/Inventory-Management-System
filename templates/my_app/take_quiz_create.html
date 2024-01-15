@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<div class="d-flex align-items-center justify-content-between">
+    <h2>{{ question.quiz.name }}</h2>
+    <div>
+        <a class="btn btn-success" href="{% url 'quiz_result' question.quiz.id %}">Submit Quiz</a>
+        <button disabled class="btn btn-outline-danger" id="timer">Time remaining: <span id="countdown"></span></button>
+    </div>
+
+</div>
+<div class="card my-2">
+    <div class="card-header p-4">
+        <strong>{{ question_no }}.</strong> {{ question.text }}
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="px-4">
+            <div class="px-4">
+                {% for option in options %}
+                <div class="form-check my-4">
+                    <input class="form-check-input" required type="radio" name="selected_option" id="{{ option.id }}"
+                        value="{{ option.id }}">
+                    <label class="form-check-label" for="{{ option.id }}">
+                        {{ option.text }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="card-footer bg-light d-flex flex-row-reverse">
+                {% if question_no == 5 %}
+                <button class="btn btn-success" type="submit">Submit Quiz</button>
+                {% else %}
+                <button class="btn btn-primary" type="submit">Next >></button>
+                {% endif %}
+            </div>
+    </form>
+</div>
+<script>
+    // Function to update the countdown
+    function updateCountdown() {
+        countdownElement.textContent = Math.floor(timeRemaining / 60) + " minutes " + timeRemaining % 60 + " seconds";
+
+        if (timeRemaining === 0) {
+            // Redirect to the result page when the timer reaches zero
+            let storedTimeDict = JSON.parse(localStorage.getItem('remainingTime')) || {};
+            delete storedTimeDict['{{ quiz_id }}'];
+            localStorage.setItem('remainingTime', JSON.stringify(storedTimeDict));
+            window.location.href = "/result/{{ quiz_id }}";
+        } else {
+            // Decrement the time remaining
+            timeRemaining--;
+
+            // Update the countdown every second (1000 milliseconds)
+            setTimeout(updateCountdown, 1000);
+        }
+    }
+    // Function to store the remaining time in local storage
+    function storeRemainingTime() {
+        if (timeRemaining > 0) {
+            // Retrieve the existing dictionary from local storage
+            let storedTimeDict = JSON.parse(localStorage.getItem('remainingTime')) || {};
+
+            // Add or update the time for the current quiz_id
+            storedTimeDict['{{ quiz_id }}'] = timeRemaining;
+
+            // Store the updated dictionary back to local storage
+            localStorage.setItem('remainingTime', JSON.stringify(storedTimeDict));
+        }
+    }
+
+    // Function to retrieve the remaining time from local storage
+    function retrieveRemainingTime() {
+        let storedTimeDict = JSON.parse(localStorage.getItem('remainingTime')) || {};
+        return storedTimeDict['{{ quiz_id }}'] || null;
+    }
+    let timeRemaining;
+
+    // Check if there is remaining time stored in local storage
+    let storedTime = retrieveRemainingTime();
+    if (storedTime !== null) {
+        timeRemaining = storedTime;
+    } else {
+        timeRemaining = '{{time}}';
+    }
+    let countdownElement = document.getElementById('countdown');
+
+    // Call the function to start the countdown
+    updateCountdown();
+    if (timeRemaining > 0) {
+        window.addEventListener('beforeunload', storeRemainingTime);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy}}
+    <a class="btn btn-primary" href="{% url 'my_quiz' %}">Cancel</a>
+    <button class="btn btn-success" type="submit">Submit</button>
+</form>
+{% endblock %}

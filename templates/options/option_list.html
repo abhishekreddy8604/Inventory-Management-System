@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <a href="{% url 'logout' %}" >logout</a>
+    <a href="{% url 'quiz_create' %}"><button>+ New Quiz</button></a>
+    {% for quiz in quiz_list %}
+        <li>{{ quiz.name }}</li>
+        <hr />
+        {% empty %}
+        <li>No objects yet.</li>
+    {% endfor %}
+{% endblock %}

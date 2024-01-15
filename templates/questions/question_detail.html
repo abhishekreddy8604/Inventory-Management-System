@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{{ question.quiz }}</h2>
+  <p>{{ quiz.text }}</p>
+
+  <h3>Options</h3>
+  <ul>
+    {% for option in option_list %}
+      <li>{{ option.text }}</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'home' %}">Back to Home</a>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+{% load custom_filters %}
+
+{% if user.is_examiner %}
+<div class="d-flex align-items-center justify-content-between">
+    <div>
+        <a class="btn btn-outline-primary" href="{% url 'home' %}">Home</a>
+        <a class="btn btn-primary" href="{% url 'my_quiz' %}">My Quiz</a>
+        <a class="btn btn-info" href="{% url 'quiz_submissions' %}">View Submissions</a>
+    </div>
+    <a class="btn btn-success" href="{% url 'quiz_create' %}">+ New Quiz</a>
+</div>
+{% endif %}
+
+{% for quiz in quiz_list %}
+<div class="card mt-4">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <span class="h2">{{ quiz.name }}</span>
+        <div>
+            <span class="badge rounded-pill bg-secondary p-2">{{ quiz.total_questions }} questions</span>
+            <span class="badge rounded-pill bg-secondary p-2">{{ quiz.total_time }} minutes</span>
+            <span class="badge rounded-pill bg-secondary p-2">{{ quiz.subject }} Subject</span>
+            <span class="badge rounded-pill bg-secondary p-2">{{ quiz.deadline }}</span>
+            {% if not quiz.is_valid %}
+            <span class="badge rounded-pill bg-primary p-2">incomplete</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <p class="card-text my-3">{{ quiz.description }}</p>
+    </div>
+    <div class="card-footer bg-light d-flex align-items-center justify-content-between">
+        {% if not user.is_examiner %}
+        {% if quiz.is_valid and quiz.deadline > current_time %}
+        <a class="btn btn-success" href="{% url 'take_quiz' quiz.id %}?question=0">Take Quiz</a>
+        {% else %}
+        <span>Quiz not available</span>
+        {% endif %}
+        {% else %}
+        {% if quiz.total_questions > question_counts|get_item:quiz.id %}
+        <a class="btn btn-primary" href="{% url 'question_create' quiz.id %}?remaining={{quiz.remaining}}">Add
+            Questions</a>
+        {% endif %}
+        <div>
+            <a class="btn btn-primary ml-1" href="{% url 'view_quizz' quiz.id %}">View</a>
+            <a class="btn btn-primary ml-1" href="{% url 'quiz_update' quiz.id %}">Edit</a>
+            <a class="btn btn-danger ml-1" href="{% url 'quiz_delete' quiz.id %}">Delete</a>
+        </div>
+        {% endif %}
+    </div>
+
+
+</div>
+{% empty %}
+<h4 class="mt-4">No quizzes yet.</h4>
+{% endfor %}
+
+{% endblock %}

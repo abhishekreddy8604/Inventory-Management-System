@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container mt-4">
+    <h2 class="mb-3">{{ quiz.name }}: Questions</h2>
+    <div class="list-group">
+        {% for question in questions %}
+        <div class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-3">{{ question.text }}</h5>
+                <large>
+                    <a href="{% url 'question_edit' question.id %}"
+                        class="badge bg-primary text-decoration-none me-2 px-3 py-2">Edit</a>
+                    <a href="{% url 'question_delete' question.id %}"
+                        class="badge bg-danger text-decoration-none px-3 py-2">Delete</a>
+                </large>
+            </div>
+            <p class="mb-3">
+                {% for option in question.options.all %}
+                <span class="badge {% if option.is_correct %}bg-success{% else %}bg-secondary{% endif %} px-3 py-2">
+                    {{ option.text }}
+                </span>
+                {% endfor %}
+            </p>
+        </div>
+        {% empty %}
+        <div class="list-group-item">No questions found.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

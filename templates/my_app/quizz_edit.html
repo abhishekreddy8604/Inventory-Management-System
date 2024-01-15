@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block main %}
+<h2>Edit Quiz: {{ object.name }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {% for question in questions %}
+    <button type="submit" name="question_id" value="{{ question.id }}" class="btn btn-link">{{ question.text }}</button>
+    {% endfor %}
+</form>
+{% endblock %}

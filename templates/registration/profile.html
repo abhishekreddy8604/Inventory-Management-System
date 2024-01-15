@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<h2>Profile: </h2>
+<div class="card my-3">
+    <div class="card-body">
+        <h3 class="card-title">{{ user.first_name }} {{ user.last_name }}</h3>
+        <p class="card-text">Username: {{ user.username }}</p>
+        <p class="card-text">Email: {{ user.email }}</p>
+        <p class="card-text">Date Joined: {{ user.date_joined }}</p>
+        <p class="card-text">Last Login: {{ user.last_login }}</p>
+        <p class="card-text">Department: {{ user.category }}</p>
+        <p class="card-text">Role:
+            {% if user.is_examiner %}
+            Examiner
+            {% else %}
+            Examinee
+            {% endif %}
+        </p>
+        {% if user.is_examiner %}
+        <p class="card-text">Total Quizzes: {{ user.quiz.all.count }}</p>
+        {% else %}
+        <p class="card-text">Total Quizzes Attempted: {{ user.quiz_attempt.all.count }}</p>
+        {% endif %}
+        <a href="{% url 'password_change' %}" class="btn btn-success">Change My Password</a>
+    </div>
+</div>
+{% endblock %}
