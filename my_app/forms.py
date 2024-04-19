@@ -1,15 +1,7 @@
-from django.forms import ModelForm
 from django import forms
-from .models import Quiz
+from .models import ProductModel
 
-
-class QuizCreateForm(ModelForm):
-    deadline = forms.DateTimeField(
-        widget=forms.DateInput(
-            attrs={"class": "form-control", "type": "datetime-local"}
-        )
-    )
-
+class ProductForm(forms.ModelForm):
     class Meta:
-        model = Quiz
-        exclude = ("examiner",)
+        model = ProductModel
+        fields = ['product_name', 'description', 'quantity','price', 'image','manager','modified_by' ]

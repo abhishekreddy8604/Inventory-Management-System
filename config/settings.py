@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 
-import dj_database_url
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,7 +26,7 @@ SECRET_KEY = "django-insecure-krvre+ig-=8x@yx*dih6r%-q)03n&kei8gzg@^0(wu70_)@6f2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['quizz-application.onrender.com']
+ALLOWED_HOSTS = ['abhishekreddy.info','quizz-application.onrender.com']
 
 # Application definition
 
@@ -82,19 +81,15 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'quizz_db',
-#         'USER': 'quizz_db_user',
-#         'PASSWORD' : 'yVahy3IEJSp29KkRIaKifNFrofGX8er1',
-#         'HOST': 'dpg-cmijs06g1b2c73d5ko0g-a',
-#         'PORT' : '5432',
-#     }
-# }
-
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'inv1',
+        'USER': 'postgres',
+        'PASSWORD' : 'Abhi@9010838636',
+        'HOST': 'localhost',
+        'PORT' : '5432',
+    }
 }
 
 

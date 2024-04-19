@@ -1,0 +1,32 @@
+{% extends 'base.html' %}{% block main %}
+<div class="container">
+  <h2 class="audit-heading">
+    Product History for {{ product.product_name }}
+  </h2>
+  <table class="audit-table">
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Product Name</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Timestamp</th>
+        <th>Modified By</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for audit in audit_entries %}
+      <tr>
+        <td>{{ audit.version }}</td>
+        <td>{{ audit.product_name }}</td>
+        <td>{{ audit.quantity }}</td>
+        <td>${{ audit.price|floatformat:2 }}</td>
+        <td>{{ audit.timestamp|date:"D, d M Y H:i:s" }}</td>
+        <td>{{ audit.modified_by.first_name }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{% url 'view_inventory' %}" class="btn-back">Back to Inventory</a>
+</div>
+{% endblock %}

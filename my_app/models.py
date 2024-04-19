@@ -1,111 +1,75 @@
-from django.utils import timezone
-from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+import datetime
 from django.db import models
 
-User = get_user_model()
+from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
+import random
 
-class QuizCategory(models.Model):
-    name = models.CharField(max_length=255)
+def generate_random_user_id():
+    return random.randint(100, 999)  # Generates a random 3-digit number
 
-    def __str__(self) -> str:
-        return self.name
-
-
-class Quiz(models.Model):
-    name = models.CharField(max_length=255)
-    subject = models.ForeignKey(QuizCategory, on_delete=models.CASCADE)
-    description = models.TextField()
-    deadline = models.DateTimeField(null=True)
-    total_time = models.PositiveIntegerField()
-    total_questions = models.PositiveIntegerField(
-        default=10, validators=[MinValueValidator(10)]
-    )
-    examiner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="quiz")
-
-    def __str__(self):
-        return self.name
-
-    @property
-    def is_valid(self):
-            return self.total_questions == self.questions.all().count() 
-
-
-    @property
-    def remaining(self):
-        return self.total_questions - self.questions.all().count() - 1
-
-
-class Question(models.Model):
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="questions")
-    text = models.TextField()
-
-    def __str__(self):
-        return self.text
-
-
-class Option(models.Model):
-    question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name="options"
-    )
-    text = models.CharField(max_length=255)
-    is_correct = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.text
-
-
-class QuizAttempt(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="quiz_attempt"
-    )
-    quiz = models.ForeignKey(
-        Quiz, on_delete=models.CASCADE, related_name="quiz_attempt"
-    )
-    questions = models.ManyToManyField(Question, related_name="quiz_attempts")
-    is_attempted = models.BooleanField(default=False)
+class userModel(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    user_id = models.PositiveIntegerField(primary_key=True, unique=True, default=generate_random_user_id)
 
     class Meta:
-        unique_together = ("user", "quiz")
+        db_table = "manager_user"
 
 
 
-class UserResponse(models.Model):
-    quiz_attempt = models.ForeignKey(
-        QuizAttempt, on_delete=models.CASCADE, related_name="user_responses"
-    )
-    question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name="user_responses"
-    )
-    selected_option = models.ForeignKey(
-        Option, on_delete=models.SET_NULL, null=True, related_name="user_responses"
-    )
+class ProductModel(models.Model):
+    product_name = models.CharField(max_length=100)
+    description = models.TextField()
+    quantity = models.IntegerField(default=0)
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    image = models.ImageField(upload_to='product_images')
+    created_at = models.DateTimeField(auto_now_add=True)
+    manager = models.ForeignKey(userModel, on_delete=models.CASCADE, related_name='products_managed')
+    modified_by = models.ForeignKey(userModel, on_delete=models.SET_NULL, null=True, blank=True, related_name='products_modified')
+    modified_at = models.DateTimeField(null=True, blank=True)
 
-    def is_correct(self):
-        return self.selected_option.is_correct
+    class Meta:
+        db_table = "products"
 
-
-class Result(models.Model):
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="results")
-    examinee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="results")
-    score = models.PositiveIntegerField(default=0)
+    def save(self, *args, **kwargs):
+        self.modified_at = datetime.datetime.now() 
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.examinee}'s result for {self.quiz}"
+        return self.product_name
 
-    def calculate_score(self):
-        quiz_attempt = QuizAttempt.objects.get(user=self.examinee, quiz=self.quiz)
-        quiz_attempt.is_attempted = True
-        quiz_attempt.save()
+    def create_audit_entry(self):
+        latest_audit = self.audits.order_by('-version').first()
+        version = latest_audit.version + 1 if latest_audit else 0
 
-        total_questions = self.quiz.questions.count()
-        correct_responses = quiz_attempt.user_responses.filter(
-            selected_option__is_correct=True
-        ).count()
+        ProductAudit.objects.create(
+            product=self,
+            version=version,
+            product_name=self.product_name,
+            quantity=self.quantity,
+            price=self.price,
+            modified_by=self.modified_by,
+        )
 
-        self.score = (correct_responses / 5) * 100
-        self.save()
+class ProductAudit(models.Model):
+    product = models.ForeignKey(ProductModel, on_delete=models.CASCADE, related_name='audits')
+    version = models.PositiveIntegerField()
+    product_name = models.CharField(max_length=100)
+    quantity = models.IntegerField(default=0)
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    timestamp = models.DateTimeField(auto_now=True)
+    modified_by = models.ForeignKey(userModel, on_delete=models.SET_NULL, null=True, blank=True)
 
-        return self.score
-    
+    class Meta:
+        db_table = "product_audit"
+
+
+
+
+
+
+
+

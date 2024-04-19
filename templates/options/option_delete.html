@@ -1,9 +1,0 @@
-{% extends 'base.html' %}
-
-{% block main %}
-<form method="post">
-    {% csrf_token %}
-    <p>Are you sure you want to delete '{{ quiz.name }}'?</p>
-    <button type="submit" value="Confirm">Yes</button>
-</form>
-{% endblock %}

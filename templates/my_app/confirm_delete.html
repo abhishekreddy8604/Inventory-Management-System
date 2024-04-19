@@ -1,0 +1,40 @@
+{% extends 'base.html' %} {% block main %}
+
+<div class="container mt-5">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/deletestyle.css' %}" />
+    <div class="card" style="border: none">
+        <div class="card-body">
+            <h1 class="card-title" style="color: #016f50; font-size: 24px">
+                Confirm Deletion
+            </h1>
+            <p class="card-text" style="font-size: 18px">
+                Are you sure you want to delete the following product?
+            </p>
+
+            <h2 class="card-title" style="font-size: 24px">
+                {{ product.product_name }}
+            </h2>
+            <p class="card-text" style="font-size: 18px">
+                <strong>Description:</strong> {{ product.description }}
+            </p>
+            <p class="card-text" style="font-size: 18px">
+                <strong>Price:</strong> ${{ product.price }}
+            </p>
+            <p class="card-text" style="font-size: 18px">
+                <strong>Quantity:</strong> {{ product.quantity }}
+            </p>
+
+            <form method="post" action="{% url 'confirm_delete' object.id %}" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" style="font-size: 18px">
+                    Confirm Delete
+                </button>
+            </form>
+
+            <a href="{% url 'home' %}" class="btn btn-secondary mt-2"
+                style="background-color: #016f50; color: white; font-size: 18px">Cancel</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
